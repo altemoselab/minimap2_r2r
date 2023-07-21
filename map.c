@@ -75,6 +75,26 @@ static void collect_minimizers(void *km, const mm_mapopt_t *opt, const mm_idx_t 
 #define heap_lt(a, b) ((a).x > (b).x)
 KSORT_INIT(heap, mm128_t, heap_lt)
 
+// DD addition, if zmw and movies are the same returns 1, else 0
+static inline int share_zmw(const char *qname, const char *tname)
+{
+	int counter = 0; int idx = 0;
+	char qchar = qname[idx]; char tchar = tname[idx];
+	while(qchar == tchar && qchar != '\0' && tchar != '\0'){
+		if( qchar == '/'){
+			counter++; 
+			if(counter == 2){	
+				return(1);
+			}
+		}	
+		idx++;
+		qchar = qname[idx]; tchar = tname[idx];
+	}
+	//fprintf(stderr, "\e[01;31m Not matching or not in PacBio header format: %s %s \e[0m\n", qname, tname);
+	return(0);
+}
+// DD end
+
 static inline int skip_seed(int flag, uint64_t r, const mm_seed_t *q, const char *qname, int qlen, const mm_idx_t *mi, int *is_self)
 {
 	*is_self = 0;
@@ -96,6 +116,13 @@ static inline int skip_seed(int flag, uint64_t r, const mm_seed_t *q, const char
 			if (flag & MM_F_FOR_ONLY) return 1;
 		}
 	}
+	// DD addition 
+	if (qname && (flag & MM_F_ZMW_HIT_ONLY)){
+		const mm_idx_seq_t *s = &mi->seq[r>>32];
+		if(!share_zmw(qname, s->name))
+			return(1);
+	}
+	// DD end
 	return 0;
 }
 
