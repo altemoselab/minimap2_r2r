@@ -44,6 +44,7 @@
 #define MM_F_NO_HASH_NAME  (0x400000000LL)
 #define MM_F_SPLICE_OLD    (0x800000000LL)
 #define MM_F_SECONDARY_SEQ (0x1000000000LL)	//output SEQ field for seqondary alignments using hard clipping
+#define MM_F_ZMW_HIT_ONLY  (0x2000000000LL) // only consider alignments between alignments between same zmws.  DD addition
 
 #define MM_I_HPC          0x1
 #define MM_I_NO_SEQ       0x2
