@@ -1,23 +1,15 @@
 ## Install and example ##
-This read2read version of minimap2 was inspired by Mitchell Vollger, this is a continuation of his work, updated to work on minimap 2.26, previously from 2.17.
+This read2read alginer version of minimap2 was inspired by Mitchell Vollger, this is a continuation of his work, updated to work on minimap 2.26, previously from 2.17.
 
 First install my modified minimap2.
 ```
 git clone https://github.com/ddubocan/minimap2_r2r.git
 cd minimap2 && make
 ```
-
-Then you can use this plus some pacbio tools [pbbamify (part of pbcore)] to make an alignment bam that only has alignments between reads with the same zmw and movie (i.e. my `—zmw-hit-only` option).
-
 ```
-samtools faidx {inpput.ref}
-samtools pbindex {input.subreads}
-samtools fastq {input.subreads} > {input.fastq}
-minimap2 \
-   --zmw-hit-only --eqx -Y -ax map-pb -t {threads} \
-   {input.ref} {input.fastq} | \
-   samtools view -b -F 4 | \
-   samtools sort -m 4G -@ {threads} - | pbbamify {input.ref} {input.subreads}  >  {output.bam}
+minimap2_r2r/minimap2 \
+   --eqx -Y -ax map-ont --MD -t {threads} \
+   {input.ref.fa} {input.fastq} > r2r.alignment.sam
 ```
 
 ### File descriptions: ###
