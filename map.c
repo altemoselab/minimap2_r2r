@@ -117,7 +117,7 @@ static inline int skip_seed(int flag, uint64_t r, const mm_seed_t *q, const char
 		}
 	}
 	// DD addition 
-	if (qname && (flag & MM_F_ZMW_HIT_ONLY)){
+	if (qname){
 		const mm_idx_seq_t *s = &mi->seq[r>>32];
 		if(!share_zmw(qname, s->name))
 			return(1);
