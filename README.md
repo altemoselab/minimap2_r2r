@@ -4,7 +4,7 @@ This read2read alginer version of minimap2 was inspired by Mitchell Vollger, thi
 First install my modified minimap2.
 ```
 git clone https://github.com/ddubocan/minimap2_r2r.git
-cd minimap2 && make
+cd minimap2_r2r && make
 ```
 ```
 minimap2_r2r/minimap2 \
