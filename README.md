@@ -6,6 +6,7 @@ First install my modified minimap2.
 git clone https://github.com/ddubocan/minimap2_r2r.git
 cd minimap2_r2r && make
 ```
+If reads are in unaligned bam format, you can convert with ```samtools fasta``` or ```samtools fastq```
 If using ONT reads, reads must be adjusted to fit the PacBio query name spec ( this allows for simpler multiplexing) across runs).
 Once all your query sequences are concatenated into the same fastq file, you can run this command to convert ONT ref + query into the appropriat format.
 ```
