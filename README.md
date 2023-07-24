@@ -25,9 +25,7 @@ minimap2_r2r/minimap2 \
 
 `{input.fastq}`: a fastq file with all the subreads (can be from many zmws)
 
-`{input.subreads}`: The raw and unaligned subreads file, it also must have a pacbio index (.pbi make with pbindex)
-
-`{output.bam}`: A bam that only contains alignments between HiFi reads and their respective subreads.
+`{r2r.alignment.sam}`: A bam that only contains alignments between HiFi reads and their respective subreads.
 
 
 
