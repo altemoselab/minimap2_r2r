@@ -14,7 +14,11 @@ Note -- all query sequences should be concatenated together after the samtools f
 ```
 python3 convertONTRefAndQueryToPBFa.py ref.fa query.fastq > name_map
 ```
-The name map file will point your ONT read names to the new names.
+The name map file will point your ONT read names to the new names. This script will only use the read id and seperate the header by white space.
+The input reference fasta and input query fastq files will have the suffix ```map_compatible.fa```, these are the files
+you want to use for minimap2_r2r.
+
+Additionally you need to run ```samtools faidx``` on your reference reads. 
 
 ```
 minimap2_r2r/minimap2 \
