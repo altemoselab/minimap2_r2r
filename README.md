@@ -26,11 +26,12 @@ minimap2_r2r/minimap2 \
    {input.ref.fa} {input.fastq} > r2r.alignment.sam
 ```
 
+
 ### File descriptions: ###
 
-`{input.ref}`: a fasta file with all your ccs reads. (This must be indexed with samtools faidx, and I usually batch this so this file is at max 3GB). If larger than ~3Gb increase the `-I` parameter for minimap2. 
+`{input.ref.map_compatible.fa}`: a fasta (output from convertONTRefAndQueryToPBFa.py )file with all your ccs reads. (This must be indexed with samtools faidx, and I usually batch this so this file is at max 3GB). If larger than ~3Gb increase the `-I` parameter for minimap2. 
 
-`{input.fastq}`: a fastq file with all the subreads (can be from many zmws)
+`{input.map_compatible.fastq}`: a fastq file with all the subreads (can be from many zmws)
 
 `{r2r.alignment.sam}`: A bam that only contains alignments between HiFi reads and their respective subreads.
 
