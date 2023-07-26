@@ -23,7 +23,7 @@ count = 1
 with open(ref,'r') as handle:
 	for line in handle:
 		if ">" in line:
-			conversion_dict[line.strip()[1:]] = count
+			conversion_dict[line.split()[0].strip()[1:]] = count
 			ccs_header = '{}/{}/ccs'.format(smrt_cell,str(count))
 			ref_out_file.write(">"+ccs_header+"\n")
 			count += 1
@@ -42,7 +42,7 @@ subread_counts = {}
 with open(query,'r') as handle:
 	for line in handle:
 		if line[0] == "@" and len(line) < 200:
-			zmw_label = conversion_dict[line.strip()[1:]]
+			zmw_label = conversion_dict[line.split()[0].strip()[1:]]
 			if zmw_label in subread_counts:
 				subread_counts[zmw_label] +=1
 			else:
