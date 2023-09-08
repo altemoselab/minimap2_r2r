@@ -7,16 +7,7 @@ git clone https://github.com/ddubocan/minimap2_r2r.git
 cd minimap2_r2r && make
 ```
 If reads are in unaligned bam format, you can convert with ```samtools fasta``` or ```samtools fastq```
-If using ONT reads, reads must be adjusted to fit the PacBio query name spec ( this allows for simpler multiplexing) across runs).
-Once all your query sequences are concatenated into the same fastq file, you can run this command to convert ONT ref + query into the appropriat format.
-Note -- all query sequences should be concatenated together after the samtools fastq command to ensure consistent naming. 
-
-```
-python3 convertONTRefAndQueryToPBFa.py ref.fa query.fastq > name_map
-```
-The name map file will point your ONT read names to the new names. This script will only use the read id and seperate the header by white space.
-The input reference fasta and input query fastq files will have the suffix ```map_compatible.fa```, these are the files
-you want to use for minimap2_r2r.
+Reads will only be aligned if their names are identical.
 
 Additionally you need to run ```samtools faidx``` on your reference reads. 
 
