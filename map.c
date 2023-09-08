@@ -75,25 +75,52 @@ static void collect_minimizers(void *km, const mm_mapopt_t *opt, const mm_idx_t 
 #define heap_lt(a, b) ((a).x > (b).x)
 KSORT_INIT(heap, mm128_t, heap_lt)
 
+// initial edits requirng consverion to pacbio format
 // DD addition, if zmw and movies are the same returns 1, else 0
+//static inline int share_zmw(const char *qname, const char *tname)
+//{
+//	int counter = 0; int idx = 0;
+//	char qchar = qname[idx]; char tchar = tname[idx];
+//	while(qchar == tchar && qchar != '\0' && tchar != '\0'){
+//		if( qchar == '/'){
+//			counter++; 
+//			if(counter == 2){	
+//				return(1);
+//			}
+//		}	
+//		idx++;
+//		qchar = qname[idx]; tchar = tname[idx];
+//	}
+//	//fprintf(stderr, "\e[01;31m Not matching or not in PacBio header format: %s %s \e[0m\n", qname, tname);
+//	return(0);
+//}
+// DD end
+
 static inline int share_zmw(const char *qname, const char *tname)
 {
-	int counter = 0; int idx = 0;
-	char qchar = qname[idx]; char tchar = tname[idx];
-	while(qchar == tchar && qchar != '\0' && tchar != '\0'){
-		if( qchar == '/'){
-			counter++; 
-			if(counter == 2){	
-				return(1);
-			}
-		}	
+	int idx = 0;
+	char qchar = qname[idx];
+	char tchar = tname[idx];
+
+	while (qchar != '\0' && tchar != '\0') {
+		if (qchar != tchar) {
+			return 0; // Return 0 if characters don't match
+		}
+
 		idx++;
-		qchar = qname[idx]; tchar = tname[idx];
+		qchar = qname[idx];
+		tchar = tname[idx];
 	}
-	//fprintf(stderr, "\e[01;31m Not matching or not in PacBio header format: %s %s \e[0m\n", qname, tname);
-	return(0);
+
+	if (qchar == '\0' && tchar == '\0') {
+		return 1; // Return 1 if both strings are equal
+	}
+
+	return 0; // Return 0 if one string is shorter than the other
 }
-// DD end
+
+
+
 
 static inline int skip_seed(int flag, uint64_t r, const mm_seed_t *q, const char *qname, int qlen, const mm_idx_t *mi, int *is_self)
 {
