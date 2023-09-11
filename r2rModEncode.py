@@ -163,6 +163,8 @@ def processAlignments(r2r_bam, alignment_bam, output_bam, read2mods, base):
 				forward_sequence = sequence = np.frombuffer(bytes(forseq, "utf-8"), dtype="S1")
 
 				MM_coords = coordinateConversion_MMTag(forward_sequence,base,adjust_positions)
+				if len(MM_coords) == 0:
+					continue
 				MM_tag = "A+a," + MM_coords
 				ML_tag = [int(ml) for ml in list(quals)]
 
