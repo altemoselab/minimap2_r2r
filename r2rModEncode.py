@@ -179,9 +179,9 @@ def readMods(bam):
 	count = 0 
 	for read in tqdm.tqdm(bam):
 		
-		count +=1
-		if count > 500:
-			break
+		#count +=1
+		#if count > 500:
+		#	break
 		read2mod_dict[read.query_name] = read.modified_bases_forward
 
 
