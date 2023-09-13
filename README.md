@@ -1,7 +1,9 @@
 ## Install and example ##
-This read2read alginer version of minimap2 was inspired by Mitchell Vollger, this is a continuation of his work, updated to work on minimap 2.26, previously from 2.17.
+This read2read alginer version of minimap2 was inspired by Mitchell Vollger, this is a continuation of his work, updated to work on minimap 2.26, previously from 2.17. 
+Reads are aligned based on readname alone, initially intended for alignment of ONT reads called with different guppy models to each other, and update the MM/ML tags on a reference read set.
 
 First install my modified minimap2.
+
 ```
 git clone https://github.com/ddubocan/minimap2_r2r.git
 cd minimap2_r2r && make
@@ -14,17 +16,51 @@ Additionally you need to run ```samtools faidx``` on your reference reads.
 ```
 minimap2_r2r/minimap2 \
    --eqx -Y -ax map-ont --MD -t {threads} \
-   {input.ref.fa} {input.fastq} > r2r.alignment.sam
+   {input.ref.fa} {input.fastq} |\
+samtools view -bt {input.ref.fa.fai} > r2r.alignment.bam
+```
+
+
+If you have base modifications you are aiming to encode to your reference set, first run ```modkit repair``` (https://nanoporetech.github.io/modkit/):
+
+First, sort by read name:
+```
+samtools sort -n unaligned.mods.bam > unaligned.mods.name_sort.bam 
+samtools sort -n r2r.alignment.bam > r2r.alignment.name_sort.bam
+```
+Next, run ```modkit repair``` and re-sort your file so it can indexed by samtools:
+```
+modkit repair -d unaligned.mods.name_sort.bam -a r2r.alignment.name_sort.bam -o r2r.alignment.MM_adjusted.bam
+samtools sort r2r.alignment.MM_adjusted.bam > r2r.alignment.MM_adjusted.sorted.bam
+samtools index r2r.alignment.MM_adjusted.sorted.bam
+```
+
+Now, you can transfer the MM encoding to your reference set of reads:
+You will need the read2read alignment from the last step, plus the reference set of reads aligned to your reference genome.
+
+The ```--replace``` flag indicates you want to replace the current MM/ML tag stored in the reference to genome alignment.
+The ```-b``` flag indicates which base to edit modifications for. Current supported modifications are 5mC and 6mA.
+
+```
+python3 r2rModEncode.py -r r2r.alignment.MM_adjusted.sorted.bam -a ref_read_aligned_to_genome.bam -b < mod_base, A or C > -o <output_bam_name> 
+```
+
+Alternatively, data can be streamed into the script for lazy parallelization + reencoding of both 5mC + 6mA modifications. 
+
+```
+samtools view -b ref_read_aligned_to_genome.bam chr1 \
+| python3 r2rModEncode.py -r r2r.alignment.MM_adjusted.sorted.bam -a - -b A -o - --replace \
+| python3 r2rModEncode.py -r r2r.alignment.MM_adjusted.sorted.5mC.bam -a - -b C -o - > ref_read_aligned_to_genome.5mC_and_6mA_encoded.chr1.bam
 ```
 
 
 ### File descriptions: ###
 
-`{input.ref.map_compatible.fa}`: a fasta (output from convertONTRefAndQueryToPBFa.py )file with all your ccs reads. (This must be indexed with samtools faidx, and I usually batch this so this file is at max 3GB). If larger than ~3Gb increase the `-I` parameter for minimap2. 
+`{input.ref.fa}`: a fasta file with all your Reference reads. If larger than ~3Gb increase the `-I` parameter for minimap2. 
 
-`{input.map_compatible.fastq}`: a fastq file with all the subreads (can be from many zmws)
+`{input.fastq}`: a fastq file with all the non-reference reads you want aligned to the reference. 
 
-`{r2r.alignment.sam}`: A bam that only contains alignments between HiFi reads and their respective subreads.
+`{r2r.alignment.bam}`: A bam that only contains alignments between HiFi reads and their respective subreads.
 
 
 
