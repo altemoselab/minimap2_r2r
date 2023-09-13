@@ -92,7 +92,7 @@ def processAlignments(r2r_bam, alignment_bam, output_bam, base,replaceMM):
 		exit()
 	for ref_read in tqdm.tqdm(alignment_bam):
 		
-		for r2r_read in r2r_bam.fetch(str(ref_read.query_name)):
+		for r2r_read in r2r_bam.fetch(str(ref_read.query_name), until_eof=True):
 			
 			if not r2r_read.is_secondary and not r2r_read.is_supplementary:
 				
