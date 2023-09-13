@@ -93,55 +93,56 @@ def processAlignments(r2r_bam, alignment_bam, output_bam, base,replaceMM):
 	for ref_read in tqdm.tqdm(alignment_bam):
 		
 		for r2r_read in r2r_bam.fetch(str(ref_read.query_name), until_eof=True):
-			
-			if not r2r_read.is_secondary and not r2r_read.is_supplementary:
-				
-				mods = r2r_read.modified_bases_forward
-				
-				forward_mods = np.array(mods[modkey]).astype(int).T #0th is position, 1th is quality
-				
-				aligned_pairs = np.array(r2r_read.get_aligned_pairs(with_seq=False,matches_only=True)).astype(int).T #0th is read, 1th is ref_read, 2nd is ref base
-
-				idx = np.isin(aligned_pairs[0],forward_mods[0],assume_unique=True)
-
-				positions = aligned_pairs[1][idx] # new positions from sup model
-
-				quals = forward_mods[1][np.isin(forward_mods[0],aligned_pairs[0],assume_unique=True)]
-
-				forseq = ref_read.get_forward_sequence()
-
-				first_occurence = forseq.index(base)
-
-				adjust_positions = np.concatenate([[first_occurence],positions]) 
-				# need to get the position of the first T because everything is offset from there 
-				# when calculating MM tag
-				
-				sequence = np.frombuffer(bytes(forseq, "utf-8"), dtype="S1")
-
-				MM_coords = coordinateConversion_MMTag(sequence,byteBase,adjust_positions)
-				if len(MM_coords) == 0:
-					continue
-				MM_tag = tag +"," + MM_coords
-				ML_tag = [int(ml) for ml in list(quals)]
-				
-				if replaceMM or not ref_read.has_tag("MM"):
-				
-					ref_read.set_tag("MM", MM_tag, replace=True)
-					ref_read.set_tag("ML", ML_tag, replace=True)
-
-				else:
-
-					old_mm = ref_read.get_tag("MM")
-					old_ml = ref_read.get_tag("ML")
-
+			if r2r_read.is_mapped:
+				if not r2r_read.is_secondary and not r2r_read.is_supplementary:
 					
-					newMM = old_mm + ";" + MM_tag
-					newML = list(old_ml) + ML_tag
+					mods = r2r_read.modified_bases_forward
 					
-					ref_read.set_tag("MM", newMM, replace=True)
-					ref_read.set_tag("ML", newML, replace=True)
+					forward_mods = np.array(mods[modkey]).astype(int).T #0th is position, 1th is quality
+					
+					aligned_pairs = np.array(r2r_read.get_aligned_pairs(with_seq=False,matches_only=True)).astype(int).T #0th is read, 1th is ref_read, 2nd is ref base
 
-				output_bam.write(ref_read)
+					idx = np.isin(aligned_pairs[0],forward_mods[0],assume_unique=True)
+
+					positions = aligned_pairs[1][idx] # new positions from sup model
+
+					quals = forward_mods[1][np.isin(forward_mods[0],aligned_pairs[0],assume_unique=True)]
+
+					forseq = ref_read.get_forward_sequence()
+
+					first_occurence = forseq.index(base)
+
+					adjust_positions = np.concatenate([[first_occurence],positions]) 
+					# need to get the position of the first T because everything is offset from there 
+					# when calculating MM tag
+					
+					sequence = np.frombuffer(bytes(forseq, "utf-8"), dtype="S1")
+
+					MM_coords = coordinateConversion_MMTag(sequence,byteBase,adjust_positions)
+					if len(MM_coords) == 0:
+						continue
+					MM_tag = tag +"," + MM_coords
+					ML_tag = [int(ml) for ml in list(quals)]
+					
+					if replaceMM or not ref_read.has_tag("MM"):
+					
+						ref_read.set_tag("MM", MM_tag, replace=True)
+						ref_read.set_tag("ML", ML_tag, replace=True)
+
+					else:
+
+						old_mm = ref_read.get_tag("MM")
+						old_ml = ref_read.get_tag("ML")
+
+						
+						newMM = old_mm + ";" + MM_tag
+						newML = list(old_ml) + ML_tag
+						
+						ref_read.set_tag("MM", newMM, replace=True)
+						ref_read.set_tag("ML", newML, replace=True)
+
+					output_bam.write(ref_read)
+					break 
 				
 
 def main():
