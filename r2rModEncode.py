@@ -30,7 +30,6 @@ import subprocess
 import shlex
 import argparse
 import tqdm
-from numba import jit
 
 def inputArgs():
 	'''Parse in arguments. '''
