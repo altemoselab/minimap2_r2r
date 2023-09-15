@@ -136,7 +136,7 @@ def processAlignments(r2r_bam, alignment_bam, output_bam, base,replaceMM):
 					if len(MM_coords) == 0:
 						continue
 
-					MM_tag = tag +"," + MM_coords
+					MM_tag = tag + "," + MM_coords + ";"
 					ML_tag = [int(ml) for ml in list(quals[qual_coord_idx])]
 
 					#ISSUE IS ABOVE
@@ -153,16 +153,21 @@ def processAlignments(r2r_bam, alignment_bam, output_bam, base,replaceMM):
 						old_ml = ref_read.get_tag("ML")
 
 						
-
+						# print(old_mm[-5:])
 						
-						newMM = old_mm + ";" + MM_tag
+						newMM = old_mm  + MM_tag 
 						newML = list(old_ml) + ML_tag
 
 						ref_read.set_tag("MM", newMM, replace=True)
 						ref_read.set_tag("ML", newML, replace=True)
 
-					output_bam.write(ref_read)
-					break 
+
+					if type(ref_read.modified_bases_forward) == type(None):
+						sys.stderr.write('Unable to format MM tag for {} \n'.format(ref_read.query_name))
+						break 
+					else:
+						output_bam.write(ref_read)
+						break 
 				
 
 def main():
