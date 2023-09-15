@@ -65,21 +65,23 @@ def coordinateConversion_MMTag(sequence, base, modification_coords):
 
 
 	mask = sequence == base
- 	# find all masks = boolean Array 
+ 	# boolean array of all positions where sequnce = base
 
 	coord_idx = sequence[modification_coords] == base
+	# index of the modification coordinates, where they actually equal the base of interest
 
-	coords = modification_coords[coord_idx] 
-	
-	# when working with double stranded data we can only use modifications
-	# on the specifc base that the modification would fall on on that strand
-	# i.e. As  on + , Ts on -, we only want the mods that = that base of interest
+	coords = modification_coords[coord_idx]
+	# using the index from above to get the actual coordinates
 
-	MM_coords = ','.join(list((np.diff(np.cumsum(mask)[coords]) - 1).astype(str)))
+	# to encode all modifications properly we need to 
+	# add the cumsum of the first value in mask[coords]
 
-	# index coord_idx from 1st position onwards, because the first position was the
-	# the first occurence of T appended to the original modifications
-	# we have to get rid of this when we want to go back and index the quality scores
+	cumulative_sum_of_base_count = np.cumsum(mask)[coords]
+	first_position = cumulative_sum_of_base_count[0] - 1
+
+	MM_coords = str(first_position) + ',' + ','.join(list((np.diff(cumulative_sum_of_base_count) - 1).astype(str)))
+
+
 
 	return MM_coords ,coord_idx
 
@@ -114,33 +116,19 @@ def processAlignments(r2r_bam, alignment_bam, output_bam, base,replaceMM):
 					positions = aligned_pairs[1][idx] # new positions from sup model
 
 					quals = forward_mods[1][np.isin(forward_mods[0],aligned_pairs[0],assume_unique=True)]
-					
-					# print(ref_read.query_name,len(positions) == len(quals))
-
-					
-					# ISSUE IS BELOW 
 
 					forseq = ref_read.get_forward_sequence()
 
-					first_occurence = forseq.index(base)
-
-				#	adjust_positions = np.concatenate([[first_occurence],positions]) 
-					adjust_positions = positions
-					# need to get the position of the first T because everything is offset from there 
-					# when calculating MM tag
-						
-
 					sequence = np.frombuffer(bytes(forseq, "utf-8"), dtype="S1")
 
-					MM_coords,qual_coord_idx = coordinateConversion_MMTag(sequence,byteBase,adjust_positions)
+					MM_coords,qual_coord_idx = coordinateConversion_MMTag(sequence,byteBase,positions)
 					
+
 					if len(MM_coords) == 0:
 						continue
 
 					MM_tag = tag + "," + MM_coords + ";"
 					ML_tag = [int(ml) for ml in list(quals[qual_coord_idx])]
-
-					#ISSUE IS ABOVE
 
 
 					if replaceMM or not ref_read.has_tag("MM"):
@@ -165,7 +153,6 @@ def processAlignments(r2r_bam, alignment_bam, output_bam, base,replaceMM):
 
 					if type(ref_read.modified_bases_forward) == type(None):
 						sys.stderr.write('Unable to format MM tag for {} \n'.format(ref_read.query_name))
-						print(ref_read)
 						break 
 					else:
 						output_bam.write(ref_read)
