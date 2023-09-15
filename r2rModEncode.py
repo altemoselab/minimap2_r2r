@@ -81,7 +81,7 @@ def coordinateConversion_MMTag(sequence, base, modification_coords):
 	# the first occurence of T appended to the original modifications
 	# we have to get rid of this when we want to go back and index the quality scores
 
-	return MM_coords ,coord_idx[1:]
+	return MM_coords ,coord_idx
 
 
 def processAlignments(r2r_bam, alignment_bam, output_bam, base,replaceMM):
@@ -124,7 +124,8 @@ def processAlignments(r2r_bam, alignment_bam, output_bam, base,replaceMM):
 
 					first_occurence = forseq.index(base)
 
-					adjust_positions = np.concatenate([[first_occurence],positions]) 
+				#	adjust_positions = np.concatenate([[first_occurence],positions]) 
+					adjust_positions = positions
 					# need to get the position of the first T because everything is offset from there 
 					# when calculating MM tag
 						
@@ -164,6 +165,7 @@ def processAlignments(r2r_bam, alignment_bam, output_bam, base,replaceMM):
 
 					if type(ref_read.modified_bases_forward) == type(None):
 						sys.stderr.write('Unable to format MM tag for {} \n'.format(ref_read.query_name))
+						print(ref_read)
 						break 
 					else:
 						output_bam.write(ref_read)
