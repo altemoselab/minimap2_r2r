@@ -79,6 +79,7 @@ def coordinateConversion_MMTag(sequence, base, modification_coords):
 	cumulative_sum_of_base_count = np.cumsum(mask)[coords]
 	if len(cumulative_sum_of_base_count) == 0:
 		print(coord_idx)
+		print(sequence[modification_coords])
 		print(sequence)
 		return None,None
 	
