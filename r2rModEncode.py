@@ -107,6 +107,10 @@ def processAlignments(r2r_bam, alignment_bam, output_bam, base,replaceMM):
 					
 					mods = r2r_read.modified_bases_forward
 					
+					if modkey not in mods:
+						sys.stderr.write('Unable to format MM tag for {} \n'.format(ref_read.query_name))
+						break
+					
 					forward_mods = np.array(mods[modkey]).astype(int).T #0th is position, 1th is quality
 
 					aligned_pairs = np.array(r2r_read.get_aligned_pairs(with_seq=False,matches_only=True)).T.astype(int) #0th is read, 1th is ref_read, 2nd is ref base
