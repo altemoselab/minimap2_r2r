@@ -77,7 +77,11 @@ def coordinateConversion_MMTag(sequence, base, modification_coords):
 	# add the cumsum of the first value in mask[coords]
 
 	cumulative_sum_of_base_count = np.cumsum(mask)[coords]
+	if len(cumulative_sum_of_base_count) == 0:
+		return None,None
+	
 	first_position = cumulative_sum_of_base_count[0] - 1
+
 
 	MM_coords = str(first_position) + ',' + ','.join(list((np.diff(cumulative_sum_of_base_count) - 1).astype(str)))
 
@@ -127,6 +131,9 @@ def processAlignments(r2r_bam, alignment_bam, output_bam, base,replaceMM):
 
 					MM_coords,qual_coord_idx = coordinateConversion_MMTag(sequence,byteBase,positions)
 					
+					if type(MM_coords) == type(None):
+						sys.stderr.write('Read {} contains no {}s \n'.format(base,ref_read.query_name))
+						break
 
 					if len(MM_coords) == 0:
 						continue
