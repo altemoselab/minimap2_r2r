@@ -1,5 +1,5 @@
 ## Install and example ##
-This read2read alginer version of minimap2 was inspired by Mitchell Vollger, this is a continuation of his work, updated to work on minimap 2.26, previously from 2.17. 
+This read2read alginer version of minimap2 has been updated to work on minimap 2.26, previously from 2.17. Special thanks to Mitchell Vollger for his help.
 Reads are aligned based on readname alone, initially intended for alignment of ONT reads called with different guppy models to each other, and update the MM/ML tags on a reference read set.
 
 First install my modified minimap2.
